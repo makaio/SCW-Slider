@@ -1,8 +1,5 @@
 $(document).ready(function() {
     image_rotator.init($('.rotate'));
-    setInterval(function() {
-        image_rotator.next();
-    }, 3 * 1000)
 });
 
 var image_rotator = {
@@ -12,10 +9,12 @@ var image_rotator = {
     inner_div : null,
     left_overlay_div : null,
     right_overlay_div : null,
+    timer : null,
     
     image_width: 625,
     image_height: 428,
     overlay_opacity: 0.8,
+    next_slide_delay : 3,
     
     // Initialize our object
     init : function(elems) {
@@ -40,14 +39,22 @@ var image_rotator = {
                 .css('top', '0px')
                 .css('left', '0px')
                 .css('opacity', image_rotator.overlay_opacity)
-                .css('background', '#000');
+                .css('background', '#000')
+                .css('cursor', 'pointer')
+                .click(function() {
+                    image_rotator.previous();
+                });
             
             image_rotator.right_overlay_div = $('<div></div>')
                 .css('position', 'absolute')
                 .css('top', '0px')
                 .css('right', '0px')
                 .css('opacity', image_rotator.overlay_opacity)
-                .css('background', '#000');
+                .css('background', '#000')
+                .css('cursor', 'pointer')
+                .click(function() {
+                    image_rotator.next();
+                });
                 
             image_rotator.outer_div
                 .css('position', 'relative')
@@ -60,11 +67,15 @@ var image_rotator = {
             $(window).resize(function() {
                 image_rotator._position_images();
             });
+            
+            // Set our interval
+            image_rotator._reset_interval();
         });
     },
     
     // Select the next image in our list
     next : function() {
+        image_rotator._reset_interval();
         var old_img = image_rotator.inner_div.find('img:first');
         image_rotator._append_image();
         old_img.slideLeft('slow', function() {
@@ -72,6 +83,27 @@ var image_rotator = {
             image_rotator.index = image_rotator._image_at(1);
             image_rotator._append_image(urls[image_rotator.index]);
         });
+    },
+    
+    // Select the previous image in our list
+    previous : function() {
+        image_rotator._reset_interval();
+        image_rotator.index = image_rotator._image_at(-1);
+        var new_img = image_rotator._prepend_image(urls[image_rotator.index]);
+        new_img.slideRight(function() {
+            var old_img = image_rotator.inner_div.find('img:last');
+            old_img.remove();
+        });
+    },
+    
+    // Sets the interval between automatic slide rotations
+    _reset_interval : function() {
+        if(image_rotator.timer) {
+            clearInterval(image_rotator.timer);
+        }
+        image_rotator.timer = setInterval(function() {
+            image_rotator.next();
+        }, image_rotator.next_slide_delay * 1000);
     },
     
     // Calculate the image index, based on the current index,
@@ -84,14 +116,25 @@ var image_rotator = {
         return image_at;
     },
     
-    // Recursive image appender.  Accepts a single URL
-    // or an array of URLs.  Appends image to inner_div
+    // Attach an image to the end of our slider
     _append_image : function(url) {
+        return this._attach_image(url);
+    },
+    
+    // Attach an image to the beginning of our slider
+    _prepend_image : function(url) {
+        return this._attach_image(url, true);
+    },
+
+    // Recursive image attacher.  Accepts a single URL
+    // or an array of URLs.  Attaches image to beginning
+    // or end of slider
+    _attach_image : function(url, beginning) {
         if(url) {
             if($.isArray(url)) {
                 var t = this;
                 $.each(urls, function(index, url){
-                    t._append_image(url);
+                    t._attach_image(url, beginning);
                 });
             }
             else {
@@ -99,7 +142,15 @@ var image_rotator = {
                     .css('width', image_rotator.image_width + 'px')
                     .css('height', image_rotator.image_height + 'px')
                     .css('float', 'left');
-                image_rotator.inner_div.append(img);
+                if(beginning) {
+                    img.css('display', 'none');
+                    image_rotator.inner_div.prepend(img);
+                    return img;
+                }
+                else {
+                    image_rotator.inner_div.append(img);
+                    return img;
+                }
             }
         }
     },
