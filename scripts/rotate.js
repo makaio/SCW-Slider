@@ -138,19 +138,29 @@ var image_rotator = {
                 });
             }
             else {
-                var img = $('<img src="'+url+'">')
+                var split_url = url.split('|', 2);
+                var img_url = split_url[0];
+                var link_url = split_url[1];
+                
+                var img = $('<img src="'+img_url+'">')
                     .css('width', image_rotator.image_width + 'px')
                     .css('height', image_rotator.image_height + 'px')
                     .css('float', 'left');
+
                 if(beginning) {
                     img.css('display', 'none');
                     image_rotator.inner_div.prepend(img);
-                    return img;
                 }
                 else {
                     image_rotator.inner_div.append(img);
-                    return img;
                 }
+                
+                if(link_url) {
+                    var link = $('<a></a>').attr('href', link_url);
+                    img.wrap(link);
+                }
+                            
+                return img;
             }
         }
     },
@@ -166,6 +176,7 @@ var image_rotator = {
     // Recursive image preloader.  Accepts a url
     // or array of urls (or array of arrays of...)
     _preload : function(urls) {
+        return null;
         if(urls) {
             if($.isArray(urls)) {
                 var t = this;
