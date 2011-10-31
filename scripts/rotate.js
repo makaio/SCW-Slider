@@ -15,6 +15,7 @@ var image_rotator = {
     image_height: 428,
     overlay_opacity: 0.8,
     next_slide_delay : 3,
+    href_separator : '|',
     
     // Initialize our object
     init : function(elems) {
@@ -138,7 +139,7 @@ var image_rotator = {
                 });
             }
             else {
-                var split_url = url.split('|', 2);
+                var split_url = url.split(image_rotator.href_separator, 2);
                 var img_url = split_url[0];
                 var link_url = split_url[1];
                 
@@ -176,7 +177,6 @@ var image_rotator = {
     // Recursive image preloader.  Accepts a url
     // or array of urls (or array of arrays of...)
     _preload : function(urls) {
-        return null;
         if(urls) {
             if($.isArray(urls)) {
                 var t = this;
@@ -186,7 +186,8 @@ var image_rotator = {
             }
             else {
                 var img = new Image;
-                img.src = urls;
+                split_url = urls.split(image_rotator.href_separator, 2);
+                img.src = split_url[0];
             }
         }
     },
