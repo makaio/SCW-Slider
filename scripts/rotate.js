@@ -14,8 +14,12 @@ var image_rotator = {
     image_width: 625,
     image_height: 428,
     overlay_opacity: 0.8,
+    overlay_opacity_hover: 1,
     next_slide_delay : 3,
     href_separator : '|',
+    left_arrow_img : 'images/arrow-l-light.png',
+    right_arrow_img : 'images/arrow-r-light.png',
+    arrow_img_height : 46,
     
     // Initialize our object
     init : function(elems) {
@@ -44,6 +48,11 @@ var image_rotator = {
                 .css('cursor', 'pointer')
                 .click(function() {
                     image_rotator.previous();
+                })
+                .hover(function() {
+                    $(this).css('opacity', image_rotator.overlay_opacity_hover);
+                }, function() {
+                    $(this).css('opacity', image_rotator.overlay_opacity);
                 });
             
             image_rotator.right_overlay_div = $('<div></div>')
@@ -55,6 +64,29 @@ var image_rotator = {
                 .css('cursor', 'pointer')
                 .click(function() {
                     image_rotator.next();
+                })
+                .hover(function() {
+                    $(this).css('opacity', image_rotator.overlay_opacity_hover);
+                }, function() {
+                    $(this).css('opacity', image_rotator.overlay_opacity);
+                });
+            
+            var top_y = (image_rotator.image_height - image_rotator.arrow_img_height) / 2;
+            var left_arrow = $('<img src="'+image_rotator.left_arrow_img+'">')
+                .css('position', 'absolute')
+                .css('left', '15px')
+                .css('top', top_y + 'px')
+                .css('cursor', 'pointer')
+                .click(function() {
+                    image_rotator.left_overlay_div.click();
+                });
+            var right_arrow = $('<img src="'+image_rotator.right_arrow_img+'">')
+                .css('position', 'absolute')
+                .css('right', '15px')
+                .css('top', top_y + 'px')
+                .css('cursor', 'pointer')
+                .click(function() {
+                    image_rotator.right_overlay_div.click();
                 });
                 
             image_rotator.outer_div
@@ -62,7 +94,9 @@ var image_rotator = {
                 .css('overflow', 'hidden')
                 .append(image_rotator.inner_div)
                 .append(image_rotator.left_overlay_div)
-                .append(image_rotator.right_overlay_div);
+                .append(image_rotator.right_overlay_div)
+                .append(left_arrow)
+                .append(right_arrow);
             
             image_rotator._position_images();
             $(window).resize(function() {
