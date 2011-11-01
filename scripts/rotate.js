@@ -1,16 +1,9 @@
 $(document).ready(function() {
-    image_rotator.init($('.rotate'));
+    scw_slider.init($('.scw_slider'));
 });
 
-var image_rotator = {
-    urls : null,
-    index : 0,
-    outer_div : null,
-    inner_div : null,
-    left_overlay_div : null,
-    right_overlay_div : null,
-    timer : null,
-    
+var scw_slider = {
+    /* Config options */
     image_width: 625,
     image_height: 428,
     overlay_opacity: 0.8,
@@ -21,17 +14,26 @@ var image_rotator = {
     right_arrow_img : 'images/arrow-r-light.png',
     arrow_img_height : 46,
     
+    /* Internal vars */
+    urls : null,
+    index : 0,
+    outer_div : null,
+    inner_div : null,
+    left_overlay_div : null,
+    right_overlay_div : null,
+    timer : null,
+    
     // Initialize our object
     init : function(elems) {
         var t = this;
         elems.each(function() {
-            image_rotator.outer_div = $(this);
+            scw_slider.outer_div = $(this);
             
-            t._parse_url_list(image_rotator.outer_div.attr('rel'));
+            t._parse_url_list(scw_slider.outer_div.attr('rel'));
             t._preload(urls);
             
-            image_rotator.inner_div = $('<div></div>').css('overflow', 'hidden');
-            image_rotator.inner_div.after('<div style="clear: left"></div>');
+            scw_slider.inner_div = $('<div></div>').css('overflow', 'hidden');
+            scw_slider.inner_div.after('<div style="clear: left"></div>');
             
             t._append_image(new Array(
                 urls[t._image_at(-1)],
@@ -39,112 +41,112 @@ var image_rotator = {
                 urls[t._image_at(1)]));
                 
         
-            image_rotator.left_overlay_div = $('<div></div>')
+            scw_slider.left_overlay_div = $('<div></div>')
                 .css('position', 'absolute')
                 .css('top', '0px')
                 .css('left', '0px')
-                .css('opacity', image_rotator.overlay_opacity)
+                .css('opacity', scw_slider.overlay_opacity)
                 .css('background', '#000')
                 .css('cursor', 'pointer')
                 .click(function() {
-                    image_rotator.previous();
+                    scw_slider.previous();
                 })
                 .hover(function() {
-                    $(this).css('opacity', image_rotator.overlay_opacity_hover);
+                    $(this).css('opacity', scw_slider.overlay_opacity_hover);
                 }, function() {
-                    $(this).css('opacity', image_rotator.overlay_opacity);
+                    $(this).css('opacity', scw_slider.overlay_opacity);
                 });
             
-            image_rotator.right_overlay_div = $('<div></div>')
+            scw_slider.right_overlay_div = $('<div></div>')
                 .css('position', 'absolute')
                 .css('top', '0px')
                 .css('right', '0px')
-                .css('opacity', image_rotator.overlay_opacity)
+                .css('opacity', scw_slider.overlay_opacity)
                 .css('background', '#000')
                 .css('cursor', 'pointer')
                 .click(function() {
-                    image_rotator.next();
+                    scw_slider.next();
                 })
                 .hover(function() {
-                    $(this).css('opacity', image_rotator.overlay_opacity_hover);
+                    $(this).css('opacity', scw_slider.overlay_opacity_hover);
                 }, function() {
-                    $(this).css('opacity', image_rotator.overlay_opacity);
+                    $(this).css('opacity', scw_slider.overlay_opacity);
                 });
             
-            var top_y = (image_rotator.image_height - image_rotator.arrow_img_height) / 2;
-            var left_arrow = $('<img src="'+image_rotator.left_arrow_img+'">')
+            var top_y = (scw_slider.image_height - scw_slider.arrow_img_height) / 2;
+            var left_arrow = $('<img src="'+scw_slider.left_arrow_img+'">')
                 .css('position', 'absolute')
                 .css('left', '15px')
                 .css('top', top_y + 'px')
                 .css('cursor', 'pointer')
                 .click(function() {
-                    image_rotator.left_overlay_div.click();
+                    scw_slider.left_overlay_div.click();
                 });
-            var right_arrow = $('<img src="'+image_rotator.right_arrow_img+'">')
+            var right_arrow = $('<img src="'+scw_slider.right_arrow_img+'">')
                 .css('position', 'absolute')
                 .css('right', '15px')
                 .css('top', top_y + 'px')
                 .css('cursor', 'pointer')
                 .click(function() {
-                    image_rotator.right_overlay_div.click();
+                    scw_slider.right_overlay_div.click();
                 });
                 
-            image_rotator.outer_div
+            scw_slider.outer_div
                 .css('position', 'relative')
                 .css('overflow', 'hidden')
-                .append(image_rotator.inner_div)
-                .append(image_rotator.left_overlay_div)
-                .append(image_rotator.right_overlay_div)
+                .append(scw_slider.inner_div)
+                .append(scw_slider.left_overlay_div)
+                .append(scw_slider.right_overlay_div)
                 .append(left_arrow)
                 .append(right_arrow);
             
-            image_rotator._position_images();
+            scw_slider._position_images();
             $(window).resize(function() {
-                image_rotator._position_images();
+                scw_slider._position_images();
             });
             
             // Set our interval
-            image_rotator._reset_interval();
+            scw_slider._reset_interval();
         });
     },
     
     // Select the next image in our list
     next : function() {
-        image_rotator._reset_interval();
-        var old_img = image_rotator.inner_div.find('img:first');
-        image_rotator._append_image();
+        scw_slider._reset_interval();
+        var old_img = scw_slider.inner_div.find('img:first');
+        scw_slider._append_image();
         old_img.slideLeft('slow', function() {
             old_img.remove();
-            image_rotator.index = image_rotator._image_at(1);
-            image_rotator._append_image(urls[image_rotator.index]);
+            scw_slider.index = scw_slider._image_at(1);
+            scw_slider._append_image(urls[scw_slider.index]);
         });
     },
     
     // Select the previous image in our list
     previous : function() {
-        image_rotator._reset_interval();
-        image_rotator.index = image_rotator._image_at(-1);
-        var new_img = image_rotator._prepend_image(urls[image_rotator.index]);
+        scw_slider._reset_interval();
+        scw_slider.index = scw_slider._image_at(-1);
+        var new_img = scw_slider._prepend_image(urls[scw_slider.index]);
         new_img.slideRight(function() {
-            var old_img = image_rotator.inner_div.find('img:last');
+            var old_img = scw_slider.inner_div.find('img:last');
             old_img.remove();
         });
     },
     
     // Sets the interval between automatic slide rotations
     _reset_interval : function() {
-        if(image_rotator.timer) {
-            clearInterval(image_rotator.timer);
+        if(scw_slider.timer) {
+            clearInterval(scw_slider.timer);
         }
-        image_rotator.timer = setInterval(function() {
-            image_rotator.next();
-        }, image_rotator.next_slide_delay * 1000);
+        scw_slider.timer = setInterval(function() {
+            scw_slider.next();
+        }, scw_slider.next_slide_delay * 1000);
     },
     
     // Calculate the image index, based on the current index,
     // given an optional positive or negative offset
     _image_at : function(offset) {
-        var image_at = (image_rotator.index + offset) % urls.length;
+        var image_at = (scw_slider.index + offset) % urls.length;
         if(image_at < 0) {
             image_at = image_at + urls.length;
         }
@@ -173,21 +175,21 @@ var image_rotator = {
                 });
             }
             else {
-                var split_url = url.split(image_rotator.href_separator, 2);
+                var split_url = url.split(scw_slider.href_separator, 2);
                 var img_url = split_url[0];
                 var link_url = split_url[1];
                 
                 var img = $('<img src="'+img_url+'">')
-                    .css('width', image_rotator.image_width + 'px')
-                    .css('height', image_rotator.image_height + 'px')
+                    .css('width', scw_slider.image_width + 'px')
+                    .css('height', scw_slider.image_height + 'px')
                     .css('float', 'left');
 
                 if(beginning) {
                     img.css('display', 'none');
-                    image_rotator.inner_div.prepend(img);
+                    scw_slider.inner_div.prepend(img);
                 }
                 else {
-                    image_rotator.inner_div.append(img);
+                    scw_slider.inner_div.append(img);
                 }
                 
                 if(link_url) {
@@ -220,7 +222,7 @@ var image_rotator = {
             }
             else {
                 var img = new Image;
-                split_url = urls.split(image_rotator.href_separator, 2);
+                split_url = urls.split(scw_slider.href_separator, 2);
                 img.src = split_url[0];
             }
         }
@@ -231,27 +233,27 @@ var image_rotator = {
     // outer_div to be 100% of the width of its parent and calculates
     // resulting positioning accordingly
     _position_images : function() {
-        image_rotator.outer_div.width('100%');
-        var full_width = image_rotator.outer_div.width();
+        scw_slider.outer_div.width('100%');
+        var full_width = scw_slider.outer_div.width();
 
-        var overlay_width = parseInt((full_width - image_rotator.image_width) / 2);
-        var margin_left = parseInt(0 - (image_rotator.image_width - overlay_width));
-        var min_width = image_rotator.image_width + 100;
+        var overlay_width = parseInt((full_width - scw_slider.image_width) / 2);
+        var margin_left = parseInt(0 - (scw_slider.image_width - overlay_width));
+        var min_width = scw_slider.image_width + 100;
         
-        image_rotator.inner_div
+        scw_slider.inner_div
             .css('width', '5000px')
-            .css('height', image_rotator.image_height + 'px')
+            .css('height', scw_slider.image_height + 'px')
             .css('margin-left', margin_left + 'px');
-        image_rotator.outer_div
+        scw_slider.outer_div
             .css('min-width', min_width + 'px')
             .css('width', full_width + 'px');
         
-        image_rotator.left_overlay_div
+        scw_slider.left_overlay_div
             .css('width', overlay_width + 'px')
-            .css('height', image_rotator.image_height + 'px');
-        image_rotator.right_overlay_div
+            .css('height', scw_slider.image_height + 'px');
+        scw_slider.right_overlay_div
             .css('width', overlay_width + 'px')
-            .css('height', image_rotator.image_height + 'px');
+            .css('height', scw_slider.image_height + 'px');
     }
 };
 
